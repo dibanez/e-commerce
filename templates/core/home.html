@@ -1,0 +1,193 @@
+{% extends 'base.html' %}
+
+{% block title %}Inicio - E-Commerce Django{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="bg-gradient-to-r from-blue-600 to-purple-600 text-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+        <div class="text-center">
+            <h1 class="text-4xl md:text-6xl font-bold mb-6">
+                Bienvenido a E-Commerce Django
+            </h1>
+            <p class="text-xl md:text-2xl mb-8 text-blue-100">
+                Descubre productos increíbles con nuestra plataforma de comercio electrónico
+            </p>
+            <a href="{% url 'catalog:product_list' %}" 
+               class="bg-white text-blue-600 px-8 py-3 rounded-lg text-lg font-semibold hover:bg-gray-100 transition duration-300">
+                Explorar Catálogo
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section class="py-16">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-12">
+            <h2 class="text-3xl font-bold text-gray-900 mb-4">¿Por qué elegirnos?</h2>
+            <p class="text-lg text-gray-600">Ofrecemos la mejor experiencia de compra online</p>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div class="text-center">
+                <div class="bg-blue-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+                    </svg>
+                </div>
+                <h3 class="text-xl font-semibold mb-2">Envío Gratis</h3>
+                <p class="text-gray-600">Envío gratuito en pedidos superiores a 50€</p>
+            </div>
+            
+            <div class="text-center">
+                <div class="bg-green-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                </div>
+                <h3 class="text-xl font-semibold mb-2">Garantía</h3>
+                <p class="text-gray-600">30 días de garantía en todos nuestros productos</p>
+            </div>
+            
+            <div class="text-center">
+                <div class="bg-purple-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <svg class="w-8 h-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192L5.636 18.364M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                    </svg>
+                </div>
+                <h3 class="text-xl font-semibold mb-2">Soporte 24/7</h3>
+                <p class="text-gray-600">Atención al cliente disponible las 24 horas</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Categories Section -->
+{% if main_categories %}
+<section class="py-16 bg-gray-100">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-12">
+            <h2 class="text-3xl font-bold text-gray-900 mb-4">Categorías Principales</h2>
+            <p class="text-lg text-gray-600">Explora nuestras categorías más populares</p>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {% for category in main_categories %}
+            <a href="{% url 'catalog:category_detail' slug=category.slug %}" 
+               class="bg-white rounded-lg shadow-md hover:shadow-lg transition duration-300 overflow-hidden group">
+                {% if category.image %}
+                    <img src="{{ category.image.url }}" 
+                         alt="{{ category.name }}" 
+                         class="w-full h-48 object-cover group-hover:scale-105 transition duration-300">
+                {% else %}
+                    <div class="w-full h-48 bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center">
+                        <span class="text-white text-2xl font-bold">{{ category.name.0 }}</span>
+                    </div>
+                {% endif %}
+                <div class="p-6">
+                    <h3 class="text-xl font-semibold text-gray-900 mb-2">{{ category.name }}</h3>
+                    <p class="text-gray-600">{{ category.description|truncatewords:10|default:"Descubre productos en esta categoría" }}</p>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- Featured Products Section -->
+{% if featured_products %}
+<section class="py-16">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-12">
+            <h2 class="text-3xl font-bold text-gray-900 mb-4">Productos Destacados</h2>
+            <p class="text-lg text-gray-600">Descubre nuestros productos más populares</p>
+        </div>
+        
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {% for product in featured_products %}
+            <div class="bg-white rounded-lg shadow-md hover:shadow-lg transition duration-300 overflow-hidden group">
+                <div class="relative">
+                    {% with product.images.first as primary_image %}
+                        {% if primary_image %}
+                            <img src="{{ primary_image.image.url }}" 
+                                 alt="{{ product.name }}" 
+                                 class="w-full h-48 object-cover group-hover:scale-105 transition duration-300">
+                        {% else %}
+                            <div class="w-full h-48 bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center">
+                                <svg class="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                </svg>
+                            </div>
+                        {% endif %}
+                    {% endwith %}
+                    
+                    {% if product.is_featured %}
+                        <span class="absolute top-2 left-2 bg-red-500 text-white px-2 py-1 rounded text-xs font-semibold">
+                            Destacado
+                        </span>
+                    {% endif %}
+                </div>
+                
+                <div class="p-4">
+                    <div class="text-sm text-gray-500 mb-1">{{ product.category.name }}</div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2 line-clamp-2">
+                        <a href="{% url 'catalog:product_detail' slug=product.slug %}" class="hover:text-blue-600">
+                            {{ product.name }}
+                        </a>
+                    </h3>
+                    <p class="text-gray-600 text-sm mb-3 line-clamp-2">
+                        {{ product.short_description|default:product.description|truncatewords:8 }}
+                    </p>
+                    
+                    <div class="flex items-center justify-between">
+                        <span class="text-2xl font-bold text-blue-600">
+                            {{ product.formatted_price }}
+                        </span>
+                        
+                        {% csrf_token %}
+                        <button onclick="addToCart({{ product.id }})" 
+                                class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition duration-300 text-sm font-medium">
+                            Añadir
+                        </button>
+                    </div>
+                    
+                    {% if not product.is_in_stock %}
+                        <div class="mt-2 text-sm text-red-600 font-medium">Sin stock</div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <div class="text-center mt-8">
+            <a href="{% url 'catalog:product_list' %}" 
+               class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition duration-300 inline-block">
+                Ver Todos los Productos
+            </a>
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- Newsletter Section -->
+<section class="bg-blue-600 py-16">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <h2 class="text-3xl font-bold text-white mb-4">Mantente Informado</h2>
+        <p class="text-xl text-blue-100 mb-8">Suscríbete a nuestro newsletter para recibir ofertas exclusivas</p>
+        
+        <div class="max-w-md mx-auto">
+            <form class="flex">
+                <input type="email" 
+                       placeholder="Tu email..." 
+                       class="flex-1 px-4 py-3 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-blue-300">
+                <button type="submit" 
+                        class="bg-blue-800 text-white px-6 py-3 rounded-r-lg hover:bg-blue-900 transition duration-300 font-semibold">
+                    Suscribirse
+                </button>
+            </form>
+        </div>
+    </div>
+</section>
+{% endblock %}

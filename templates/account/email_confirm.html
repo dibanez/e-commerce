@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block title %}Confirmar Email{% endblock %}
+
+{% block content %}
+<div class="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-md w-full space-y-8">
+        <div class="text-center">
+            <div class="mx-auto h-16 w-16 bg-blue-100 rounded-full flex items-center justify-center">
+                <svg class="h-8 w-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                </svg>
+            </div>
+            <h2 class="mt-6 text-3xl font-extrabold text-gray-900">
+                Confirmar Email
+            </h2>
+            
+            {% if confirmation %}
+                <p class="mt-4 text-gray-600">
+                    Para completar tu registro, confirma tu dirección de email haciendo clic en el botón de abajo.
+                </p>
+                <p class="mt-2 text-sm text-gray-500">
+                    Email: <span class="font-medium">{{ confirmation.email_address.email }}</span>
+                </p>
+            {% else %}
+                <p class="mt-4 text-red-600">
+                    El enlace de confirmación no es válido o ha expirado.
+                </p>
+            {% endif %}
+        </div>
+        
+        {% if confirmation %}
+            <form class="mt-8" method="post">
+                {% csrf_token %}
+                <button type="submit" 
+                        class="w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-300">
+                    Confirmar Email
+                </button>
+            </form>
+        {% endif %}
+        
+        <div class="mt-6 text-center">
+            <p class="text-sm text-gray-600">
+                ¿Problemas con el enlace? 
+                <a href="{% url 'account_email' %}" class="text-blue-600 hover:underline">
+                    Reenviar email de confirmación
+                </a>
+            </p>
+        </div>
+        
+        <div class="text-center">
+            <a href="{% url 'core:home' %}" class="text-blue-600 hover:text-blue-500 text-sm font-medium">
+                ← Volver al inicio
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

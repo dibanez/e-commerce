@@ -1,0 +1,354 @@
+{% extends "base.html" %}
+{% load cart_filters %}
+
+{% block title %}Checkout - Finalizar Pedido{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <h1 class="text-3xl font-bold text-gray-900 mb-8">Finalizar Pedido</h1>
+
+    <!-- Display form errors if any -->
+    {% if form.errors %}
+        <div class="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+            <h3 class="text-red-800 font-medium mb-2">Por favor, corrige los siguientes errores:</h3>
+            <ul class="text-red-700 text-sm space-y-1">
+                {% for field, errors in form.errors.items %}
+                    {% for error in errors %}
+                        <li>• {{ field|title }}: {{ error }}</li>
+                    {% endfor %}
+                {% endfor %}
+            </ul>
+        </div>
+    {% endif %}
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- Checkout Form -->
+        <div class="lg:col-span-2">
+            <form method="post" class="space-y-8">
+                {% csrf_token %}
+                
+                <!-- Billing Address -->
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h2 class="text-xl font-semibold text-gray-900 mb-6">Dirección de Facturación</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label for="{{ form.billing_first_name.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                                {{ form.billing_first_name.label }}
+                            </label>
+                            <input type="text" 
+                                   name="{{ form.billing_first_name.name }}" 
+                                   id="{{ form.billing_first_name.id_for_label }}"
+                                   value="{{ form.billing_first_name.value|default:'' }}"
+                                   class="appearance-none rounded-lg relative block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                   placeholder="Nombre"
+                                   required>
+                            {% if form.billing_first_name.errors %}
+                                <p class="text-red-600 text-sm mt-1">{{ form.billing_first_name.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                        <div>
+                            <label for="{{ form.billing_last_name.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                                {{ form.billing_last_name.label }}
+                            </label>
+                            <input type="text" 
+                                   name="{{ form.billing_last_name.name }}" 
+                                   id="{{ form.billing_last_name.id_for_label }}"
+                                   value="{{ form.billing_last_name.value|default:'' }}"
+                                   class="appearance-none rounded-lg relative block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                   placeholder="Apellidos"
+                                   required>
+                            {% if form.billing_last_name.errors %}
+                                <p class="text-red-600 text-sm mt-1">{{ form.billing_last_name.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                        <div class="md:col-span-2">
+                            <label for="{{ form.billing_address_line_1.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                                {{ form.billing_address_line_1.label }}
+                            </label>
+                            <input type="text" 
+                                   name="{{ form.billing_address_line_1.name }}" 
+                                   id="{{ form.billing_address_line_1.id_for_label }}"
+                                   value="{{ form.billing_address_line_1.value|default:'' }}"
+                                   class="appearance-none rounded-lg relative block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                   placeholder="Dirección"
+                                   required>
+                            {% if form.billing_address_line_1.errors %}
+                                <p class="text-red-600 text-sm mt-1">{{ form.billing_address_line_1.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                        <div>
+                            <label for="{{ form.billing_city.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                                {{ form.billing_city.label }}
+                            </label>
+                            <input type="text" 
+                                   name="{{ form.billing_city.name }}" 
+                                   id="{{ form.billing_city.id_for_label }}"
+                                   value="{{ form.billing_city.value|default:'' }}"
+                                   class="appearance-none rounded-lg relative block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                   placeholder="Ciudad"
+                                   required>
+                            {% if form.billing_city.errors %}
+                                <p class="text-red-600 text-sm mt-1">{{ form.billing_city.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                        <div>
+                            <label for="{{ form.billing_state.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                                {{ form.billing_state.label }}
+                            </label>
+                            <input type="text" 
+                                   name="{{ form.billing_state.name }}" 
+                                   id="{{ form.billing_state.id_for_label }}"
+                                   value="{{ form.billing_state.value|default:'' }}"
+                                   class="appearance-none rounded-lg relative block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                   placeholder="Provincia"
+                                   required>
+                            {% if form.billing_state.errors %}
+                                <p class="text-red-600 text-sm mt-1">{{ form.billing_state.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                        <div>
+                            <label for="{{ form.billing_postal_code.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                                {{ form.billing_postal_code.label }}
+                            </label>
+                            <input type="text" 
+                                   name="{{ form.billing_postal_code.name }}" 
+                                   id="{{ form.billing_postal_code.id_for_label }}"
+                                   value="{{ form.billing_postal_code.value|default:'' }}"
+                                   class="appearance-none rounded-lg relative block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                   placeholder="28001"
+                                   pattern="[0-9]{5}"
+                                   title="Debe tener exactamente 5 dígitos"
+                                   required>
+                            {% if form.billing_postal_code.errors %}
+                                <p class="text-red-600 text-sm mt-1">{{ form.billing_postal_code.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                        <div>
+                            <label for="{{ form.billing_country.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                                {{ form.billing_country.label }}
+                            </label>
+                            <select name="{{ form.billing_country.name }}" 
+                                    id="{{ form.billing_country.id_for_label }}"
+                                    class="appearance-none rounded-lg relative block w-full px-3 py-3 border border-gray-300 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                    required>
+                                {% for value, label in form.billing_country.field.choices %}
+                                    <option value="{{ value }}" {% if form.billing_country.value == value %}selected{% endif %}>{{ label }}</option>
+                                {% endfor %}
+                            </select>
+                            {% if form.billing_country.errors %}
+                                <p class="text-red-600 text-sm mt-1">{{ form.billing_country.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Shipping Address -->
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h2 class="text-xl font-semibold text-gray-900 mb-6">Dirección de Envío</h2>
+                    
+                    <!-- Same as billing checkbox -->
+                    <div class="mb-6">
+                        <label class="flex items-start">
+                            <input type="checkbox" 
+                                   name="{{ form.shipping_same_as_billing.name }}"
+                                   id="same-address"
+                                   {% if form.shipping_same_as_billing.value %}checked{% endif %}
+                                   class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded mt-1"
+                                   onchange="toggleShippingFields()">
+                            <span class="ml-2 text-sm text-gray-700">
+                                {{ form.shipping_same_as_billing.label }}
+                            </span>
+                        </label>
+                        {% if form.shipping_same_as_billing.errors %}
+                            <p class="text-red-600 text-sm mt-1">{{ form.shipping_same_as_billing.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+
+                    <!-- Shipping fields (shown when different from billing) -->
+                    <div id="shipping-fields" class="grid grid-cols-1 md:grid-cols-2 gap-6" style="{% if form.shipping_same_as_billing.value %}display: none;{% endif %}">
+                        <div>
+                            <label for="{{ form.shipping_first_name.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                                {{ form.shipping_first_name.label }}
+                            </label>
+                            <input type="text" 
+                                   name="{{ form.shipping_first_name.name }}" 
+                                   id="{{ form.shipping_first_name.id_for_label }}"
+                                   value="{{ form.shipping_first_name.value|default:'' }}"
+                                   class="appearance-none rounded-lg relative block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                   placeholder="Nombre">
+                            {% if form.shipping_first_name.errors %}
+                                <p class="text-red-600 text-sm mt-1">{{ form.shipping_first_name.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                        <div>
+                            <label for="{{ form.shipping_last_name.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                                {{ form.shipping_last_name.label }}
+                            </label>
+                            <input type="text" 
+                                   name="{{ form.shipping_last_name.name }}" 
+                                   id="{{ form.shipping_last_name.id_for_label }}"
+                                   value="{{ form.shipping_last_name.value|default:'' }}"
+                                   class="appearance-none rounded-lg relative block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                   placeholder="Apellidos">
+                            {% if form.shipping_last_name.errors %}
+                                <p class="text-red-600 text-sm mt-1">{{ form.shipping_last_name.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                        <div class="md:col-span-2">
+                            <label for="{{ form.shipping_address_line_1.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                                {{ form.shipping_address_line_1.label }}
+                            </label>
+                            <input type="text" 
+                                   name="{{ form.shipping_address_line_1.name }}" 
+                                   id="{{ form.shipping_address_line_1.id_for_label }}"
+                                   value="{{ form.shipping_address_line_1.value|default:'' }}"
+                                   class="appearance-none rounded-lg relative block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                   placeholder="Dirección">
+                            {% if form.shipping_address_line_1.errors %}
+                                <p class="text-red-600 text-sm mt-1">{{ form.shipping_address_line_1.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                        <div>
+                            <label for="{{ form.shipping_city.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                                {{ form.shipping_city.label }}
+                            </label>
+                            <input type="text" 
+                                   name="{{ form.shipping_city.name }}" 
+                                   id="{{ form.shipping_city.id_for_label }}"
+                                   value="{{ form.shipping_city.value|default:'' }}"
+                                   class="appearance-none rounded-lg relative block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                   placeholder="Ciudad">
+                            {% if form.shipping_city.errors %}
+                                <p class="text-red-600 text-sm mt-1">{{ form.shipping_city.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                        <div>
+                            <label for="{{ form.shipping_state.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                                {{ form.shipping_state.label }}
+                            </label>
+                            <input type="text" 
+                                   name="{{ form.shipping_state.name }}" 
+                                   id="{{ form.shipping_state.id_for_label }}"
+                                   value="{{ form.shipping_state.value|default:'' }}"
+                                   class="appearance-none rounded-lg relative block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                   placeholder="Provincia">
+                            {% if form.shipping_state.errors %}
+                                <p class="text-red-600 text-sm mt-1">{{ form.shipping_state.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                        <div>
+                            <label for="{{ form.shipping_postal_code.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                                {{ form.shipping_postal_code.label }}
+                            </label>
+                            <input type="text" 
+                                   name="{{ form.shipping_postal_code.name }}" 
+                                   id="{{ form.shipping_postal_code.id_for_label }}"
+                                   value="{{ form.shipping_postal_code.value|default:'' }}"
+                                   class="appearance-none rounded-lg relative block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                   placeholder="28001"
+                                   pattern="[0-9]{5}"
+                                   title="Debe tener exactamente 5 dígitos">
+                            {% if form.shipping_postal_code.errors %}
+                                <p class="text-red-600 text-sm mt-1">{{ form.shipping_postal_code.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                        <div>
+                            <label for="{{ form.shipping_country.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                                {{ form.shipping_country.label }}
+                            </label>
+                            <select name="{{ form.shipping_country.name }}" 
+                                    id="{{ form.shipping_country.id_for_label }}"
+                                    class="appearance-none rounded-lg relative block w-full px-3 py-3 border border-gray-300 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                {% for value, label in form.shipping_country.field.choices %}
+                                    <option value="{{ value }}" {% if form.shipping_country.value == value %}selected{% endif %}>{{ label }}</option>
+                                {% endfor %}
+                            </select>
+                            {% if form.shipping_country.errors %}
+                                <p class="text-red-600 text-sm mt-1">{{ form.shipping_country.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Terms and Submit -->
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <div class="space-y-4">
+                        <label class="flex items-start">
+                            <input type="checkbox" 
+                                   name="{{ form.terms_accepted.name }}"
+                                   {% if form.terms_accepted.value %}checked{% endif %}
+                                   class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded mt-1"
+                                   required>
+                            <span class="ml-2 text-sm text-gray-600">
+                                Acepto los <a href="#" class="text-blue-600 hover:underline">términos y condiciones</a>
+                            </span>
+                        </label>
+                        {% if form.terms_accepted.errors %}
+                            <p class="text-red-600 text-sm">{{ form.terms_accepted.errors.0 }}</p>
+                        {% endif %}
+                        
+                        <button type="submit" 
+                                class="w-full bg-blue-600 text-white py-3 px-6 rounded-lg hover:bg-blue-700 transition duration-300 font-semibold text-lg">
+                            Crear Pedido
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- Order Summary -->
+        <div class="lg:col-span-1">
+            <div class="bg-white rounded-lg shadow-md p-6 sticky top-24">
+                <h2 class="text-lg font-semibold text-gray-900 mb-4">Resumen del Pedido</h2>
+                
+                <!-- Cart items summary -->
+                <div class="space-y-3 mb-6">
+                    {% for item in cart_summary.items %}
+                    <div class="flex justify-between text-sm">
+                        <span>{{ item.product.name }} × {{ item.quantity }}</span>
+                        <span>{{ item.total_price }} €</span>
+                    </div>
+                    {% endfor %}
+                </div>
+                
+                <div class="border-t border-gray-200 pt-4 space-y-2">
+                    <div class="flex justify-between">
+                        <span>Subtotal</span>
+                        <span>{{ cart_summary.subtotal }} €</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span>Envío</span>
+                        <span>5,95 €</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span>IVA</span>
+                        <span>{{ cart_summary.subtotal|mul:0.21|floatformat:2 }} €</span>
+                    </div>
+                    <div class="flex justify-between font-bold text-lg border-t border-gray-200 pt-2">
+                        <span>Total</span>
+                        <span class="text-blue-600">{% with tax=cart_summary.subtotal|mul:0.21 %}{{ cart_summary.subtotal|add:5.95|add:tax|floatformat:2 }}{% endwith %} €</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function toggleShippingFields() {
+    const checkbox = document.getElementById('same-address');
+    const shippingFields = document.getElementById('shipping-fields');
+    
+    if (checkbox.checked) {
+        shippingFields.style.display = 'none';
+    } else {
+        shippingFields.style.display = 'grid';
+    }
+}
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', function() {
+    toggleShippingFields();
+});
+</script>
+{% endblock %}

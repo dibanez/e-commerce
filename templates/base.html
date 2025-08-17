@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}E-Commerce Django{% endblock %}</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Custom CSS -->
+    <style>
+        .cart-icon {
+            position: relative;
+        }
+        .cart-badge {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: #ef4444;
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+        
+        /* Form styling */
+        input[type="text"], input[type="email"], input[type="password"], input[type="number"], 
+        select, textarea {
+            @apply w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent;
+        }
+        
+        input[type="checkbox"], input[type="radio"] {
+            @apply h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded;
+        }
+        
+        label {
+            @apply block text-sm font-medium text-gray-700;
+        }
+    </style>
+    
+    {% block extra_css %}{% endblock %}
+</head>
+<body class="bg-gray-50 min-h-screen flex flex-col">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-lg sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <!-- Logo -->
+                <div class="flex-shrink-0">
+                    <a href="{% url 'core:home' %}" class="text-2xl font-bold text-blue-600">
+                        E-Commerce
+                    </a>
+                </div>
+                
+                <!-- Navigation Links -->
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-baseline space-x-4">
+                        <a href="{% url 'core:home' %}" class="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium">
+                            Inicio
+                        </a>
+                        <a href="{% url 'catalog:product_list' %}" class="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium">
+                            Catálogo
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- Right side -->
+                <div class="flex items-center space-x-4">
+                    <!-- Search -->
+                    <form method="get" action="{% url 'catalog:product_search' %}" class="hidden md:block">
+                        <input type="text" 
+                               name="q" 
+                               placeholder="Buscar productos..." 
+                               value="{{ search_query|default:'' }}"
+                               class="w-64 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    </form>
+                    
+                    <!-- Cart -->
+                    <a href="{% url 'cart:cart_detail' %}" class="cart-icon text-gray-700 hover:text-blue-600">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-1.68 4.12a1 1 0 001 1.88h9.68M7 13v3a2 2 0 002 2h4a2 2 0 002-2v-3M9 9h6"></path>
+                        </svg>
+                        {% if cart_total_items > 0 %}
+                            <span class="cart-badge">{{ cart_total_items }}</span>
+                        {% endif %}
+                    </a>
+                    
+                    <!-- User Menu -->
+                    {% if user.is_authenticated %}
+                        <div class="relative group">
+                            <button class="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium">
+                                {{ user.first_name|default:user.email }}
+                                <svg class="w-4 h-4 inline-block ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                                </svg>
+                            </button>
+                            <div class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300">
+                                <a href="{% url 'orders:order_list' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Mis Pedidos</a>
+                                {% if user.is_staff %}
+                                    <a href="/admin/" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Admin</a>
+                                {% endif %}
+                                <a href="{% url 'account_logout' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Cerrar Sesión</a>
+                            </div>
+                        </div>
+                    {% else %}
+                        <a href="{% url 'account_login' %}" class="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium">
+                            Iniciar Sesión
+                        </a>
+                        <a href="{% url 'account_signup' %}" class="bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-700">
+                            Registrarse
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Messages -->
+    {% if messages %}
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4">
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} mb-4 p-4 rounded-md {% if message.tags == 'error' %}bg-red-100 border border-red-400 text-red-700{% elif message.tags == 'warning' %}bg-yellow-100 border border-yellow-400 text-yellow-700{% elif message.tags == 'success' %}bg-green-100 border border-green-400 text-green-700{% else %}bg-blue-100 border border-blue-400 text-blue-700{% endif %}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <!-- Main Content -->
+    <main class="flex-grow">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white mt-16">
+        <div class="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">E-Commerce Django</h3>
+                    <p class="text-gray-300">Aplicación de comercio electrónico desarrollada con Django, Docker y las mejores prácticas.</p>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Enlaces</h3>
+                    <ul class="space-y-2">
+                        <li><a href="{% url 'core:home' %}" class="text-gray-300 hover:text-white">Inicio</a></li>
+                        <li><a href="{% url 'catalog:product_list' %}" class="text-gray-300 hover:text-white">Catálogo</a></li>
+                        <li><a href="{% url 'cart:cart_detail' %}" class="text-gray-300 hover:text-white">Carrito</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Cuenta</h3>
+                    <ul class="space-y-2">
+                        {% if user.is_authenticated %}
+                            <li><a href="{% url 'orders:order_list' %}" class="text-gray-300 hover:text-white">Mis Pedidos</a></li>
+                            <li><a href="{% url 'account_logout' %}" class="text-gray-300 hover:text-white">Cerrar Sesión</a></li>
+                        {% else %}
+                            <li><a href="{% url 'account_login' %}" class="text-gray-300 hover:text-white">Iniciar Sesión</a></li>
+                            <li><a href="{% url 'account_signup' %}" class="text-gray-300 hover:text-white">Registrarse</a></li>
+                        {% endif %}
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Información</h3>
+                    <ul class="space-y-2">
+                        <li><span class="text-gray-300">Envío gratis desde 50€</span></li>
+                        <li><span class="text-gray-300">Devoluciones en 30 días</span></li>
+                        <li><span class="text-gray-300">Atención al cliente 24/7</span></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="border-t border-gray-700 mt-8 pt-8 text-center">
+                <p class="text-gray-300">&copy; 2024 E-Commerce Django. Todos los derechos reservados.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script>
+        // Add to cart functionality
+        function addToCart(productId, quantity = 1) {
+            fetch(`/cart/add/${productId}/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                    'Accept': 'application/json'
+                },
+                body: `quantity=${quantity}`
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Update cart badge
+                    const badge = document.querySelector('.cart-badge');
+                    if (badge) {
+                        badge.textContent = data.cart_total_items;
+                    } else if (data.cart_total_items > 0) {
+                        // Create badge if it doesn't exist
+                        const cartIcon = document.querySelector('.cart-icon');
+                        const newBadge = document.createElement('span');
+                        newBadge.className = 'cart-badge';
+                        newBadge.textContent = data.cart_total_items;
+                        cartIcon.appendChild(newBadge);
+                    }
+                    
+                    // Show success message
+                    showMessage(data.message, 'success');
+                } else {
+                    showMessage('Error adding item to cart', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showMessage('Error adding item to cart', 'error');
+            });
+        }
+
+        // Show message function
+        function showMessage(message, type) {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type} mb-4 p-4 rounded-md fixed top-20 right-4 z-50 max-w-sm ${
+                type === 'error' ? 'bg-red-100 border border-red-400 text-red-700' :
+                type === 'success' ? 'bg-green-100 border border-green-400 text-green-700' :
+                'bg-blue-100 border border-blue-400 text-blue-700'
+            }`;
+            alertDiv.textContent = message;
+            
+            document.body.appendChild(alertDiv);
+            
+            // Remove after 5 seconds
+            setTimeout(() => {
+                alertDiv.remove();
+            }, 5000);
+        }
+    </script>
+    
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+
+{% block title %}Métodos de Pago - Pedido {{ order.number }}{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <h1 class="text-3xl font-bold text-gray-900 mb-8">Seleccionar Método de Pago</h1>
+    
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- Payment Methods -->
+        <div class="lg:col-span-2">
+            <form method="post" action="{% url 'payments:initiate_payment' order_number=order.number %}">
+                {% csrf_token %}
+                
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h2 class="text-xl font-semibold text-gray-900 mb-6">Elige tu método de pago</h2>
+                    
+                    <div class="space-y-4">
+                        {% for method in payment_methods %}
+                        <label class="flex items-center p-4 border-2 border-gray-200 rounded-lg hover:border-blue-500 cursor-pointer transition duration-300">
+                            <input type="radio" name="provider" value="{{ method.code }}" class="mr-4">
+                            <div class="flex-1">
+                                <h3 class="font-semibold text-gray-900">{{ method.name }}</h3>
+                                <p class="text-sm text-gray-600">{{ method.description }}</p>
+                                {% if method.test_mode %}
+                                    <span class="inline-block bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded mt-2">
+                                        Modo de prueba
+                                    </span>
+                                {% endif %}
+                            </div>
+                        </label>
+                        {% endfor %}
+                    </div>
+                    
+                    <button type="submit" 
+                            class="w-full mt-6 bg-blue-600 text-white py-3 px-6 rounded-lg hover:bg-blue-700 transition duration-300 font-semibold text-lg">
+                        Proceder al Pago
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Order Summary -->
+        <div class="lg:col-span-1">
+            <div class="bg-white rounded-lg shadow-md p-6 sticky top-24">
+                <h2 class="text-lg font-semibold text-gray-900 mb-4">Pedido {{ order.number }}</h2>
+                
+                <div class="space-y-2 text-sm">
+                    <div class="flex justify-between">
+                        <span>Subtotal</span>
+                        <span>{{ order.subtotal }} €</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span>Envío</span>
+                        <span>{{ order.shipping_total }} €</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span>IVA</span>
+                        <span>{{ order.tax_total }} €</span>
+                    </div>
+                    <div class="flex justify-between font-bold text-lg border-t border-gray-200 pt-2">
+                        <span>Total</span>
+                        <span class="text-blue-600">{{ order.grand_total }} €</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

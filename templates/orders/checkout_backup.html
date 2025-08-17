@@ -1,0 +1,108 @@
+{% extends 'base.html' %}
+{% load cart_filters %}
+
+{% block title %}Checkout - Finalizar Pedido{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <h1 class="text-3xl font-bold text-gray-900 mb-8">Finalizar Pedido</h1>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- Checkout Form -->
+        <div class="lg:col-span-2">
+            <form method="post" class="space-y-8">
+                {% csrf_token %}
+                
+                <!-- Billing Address -->
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h2 class="text-xl font-semibold text-gray-900 mb-6">Dirección de Facturación</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            {{ form.billing_first_name.label_tag }}
+                            {{ form.billing_first_name }}
+                            {% if form.billing_first_name.errors %}
+                                <p class="text-red-600 text-sm mt-1">{{ form.billing_first_name.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                        <div>
+                            {{ form.billing_last_name.label_tag }}
+                            {{ form.billing_last_name }}
+                            {% if form.billing_last_name.errors %}
+                                <p class="text-red-600 text-sm mt-1">{{ form.billing_last_name.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                        <!-- Add more billing fields... -->
+                    </div>
+                </div>
+
+                <!-- Shipping Address -->
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <div class="flex items-center justify-between mb-6">
+                        <h2 class="text-xl font-semibold text-gray-900">Dirección de Envío</h2>
+                        <label class="flex items-center">
+                            {{ form.shipping_same_as_billing }}
+                            <span class="ml-2 text-sm text-gray-600">Igual que facturación</span>
+                        </label>
+                    </div>
+                    <div id="shipping-fields" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Shipping fields would be here -->
+                    </div>
+                </div>
+
+                <!-- Terms and Submit -->
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <div class="space-y-4">
+                        <label class="flex items-start">
+                            {{ form.terms_accepted }}
+                            <span class="ml-2 text-sm text-gray-600">
+                                Acepto los <a href="#" class="text-blue-600 hover:underline">términos y condiciones</a>
+                            </span>
+                        </label>
+                        
+                        <button type="submit" 
+                                class="w-full bg-blue-600 text-white py-3 px-6 rounded-lg hover:bg-blue-700 transition duration-300 font-semibold text-lg">
+                            Crear Pedido
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- Order Summary -->
+        <div class="lg:col-span-1">
+            <div class="bg-white rounded-lg shadow-md p-6 sticky top-24">
+                <h2 class="text-lg font-semibold text-gray-900 mb-4">Resumen del Pedido</h2>
+                
+                <!-- Cart items summary -->
+                <div class="space-y-3 mb-6">
+                    {% for item in cart_summary.items %}
+                    <div class="flex justify-between text-sm">
+                        <span>{{ item.product.name }} × {{ item.quantity }}</span>
+                        <span>{{ item.total_price }} €</span>
+                    </div>
+                    {% endfor %}
+                </div>
+                
+                <div class="border-t border-gray-200 pt-4 space-y-2">
+                    <div class="flex justify-between">
+                        <span>Subtotal</span>
+                        <span>{{ cart_summary.subtotal }} €</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span>Envío</span>
+                        <span>5,95 €</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span>IVA</span>
+                        <span>{{ cart_summary.subtotal|mul:0.21|floatformat:2 }} €</span>
+                    </div>
+                    <div class="flex justify-between font-bold text-lg border-t border-gray-200 pt-2">
+                        <span>Total</span>
+                        <span class="text-blue-600">{% with tax=cart_summary.subtotal|mul:0.21 %}{{ cart_summary.subtotal|add:5.95|add:tax|floatformat:2 }}{% endwith %} €</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

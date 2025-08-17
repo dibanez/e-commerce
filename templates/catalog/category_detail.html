@@ -1,0 +1,303 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ category.name }} - Categoría{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Breadcrumb -->
+    <nav class="mb-8">
+        <ol class="flex items-center space-x-2 text-sm text-gray-500">
+            <li><a href="{% url 'core:home' %}" class="hover:text-blue-600">Inicio</a></li>
+            <li><span class="mx-2">/</span></li>
+            {% if category.parent %}
+                <li><a href="{% url 'catalog:category_detail' slug=category.parent.slug %}" class="hover:text-blue-600">{{ category.parent.name }}</a></li>
+                <li><span class="mx-2">/</span></li>
+            {% endif %}
+            <li class="text-gray-900 font-medium">{{ category.name }}</li>
+        </ol>
+    </nav>
+
+    <!-- Category Header -->
+    <div class="mb-8">
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between">
+            <div class="flex-1">
+                <h1 class="text-3xl font-bold text-gray-900">{{ category.name }}</h1>
+                {% if category.description %}
+                    <p class="mt-2 text-gray-600">{{ category.description }}</p>
+                {% endif %}
+                <p class="mt-2 text-sm text-gray-500">
+                    {{ products.count }} producto{{ products.count|pluralize }} encontrado{{ products.count|pluralize }}
+                </p>
+            </div>
+            {% if category.image %}
+                <div class="mt-4 md:mt-0 md:ml-8">
+                    <img src="{{ category.image.url }}" 
+                         alt="{{ category.name }}" 
+                         class="w-32 h-32 object-cover rounded-lg shadow-md">
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Subcategories -->
+    {% if category.children.all %}
+        <div class="mb-12">
+            <h2 class="text-xl font-semibold text-gray-900 mb-6">Subcategorías</h2>
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-6">
+                {% for subcategory in category.children.all %}
+                    {% if subcategory.is_active %}
+                        <a href="{% url 'catalog:category_detail' slug=subcategory.slug %}" 
+                           class="group block bg-white rounded-lg shadow-md hover:shadow-lg transition duration-300 overflow-hidden">
+                            {% if subcategory.image %}
+                                <div class="aspect-w-1 aspect-h-1">
+                                    <img src="{{ subcategory.image.url }}" 
+                                         alt="{{ subcategory.name }}"
+                                         class="w-full h-32 object-cover group-hover:scale-105 transition duration-300">
+                                </div>
+                            {% else %}
+                                <div class="w-full h-32 bg-gray-200 flex items-center justify-center group-hover:bg-gray-300 transition duration-300">
+                                    <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                                    </svg>
+                                </div>
+                            {% endif %}
+                            <div class="p-4">
+                                <h3 class="text-sm font-medium text-gray-900 group-hover:text-blue-600 transition duration-300">
+                                    {{ subcategory.name }}
+                                </h3>
+                                <p class="text-xs text-gray-500 mt-1">
+                                    {{ subcategory.products.count }} producto{{ subcategory.products.count|pluralize }}
+                                </p>
+                            </div>
+                        </a>
+                    {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+    {% endif %}
+
+    <!-- Products Section -->
+    {% if products %}
+        <div class="mb-8">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6">
+                <h2 class="text-xl font-semibold text-gray-900">Productos</h2>
+                
+                <!-- Sort Options -->
+                <div class="mt-4 sm:mt-0">
+                    <select id="sort-select" class="block w-full sm:w-auto px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                        <option value="name">Ordenar por nombre</option>
+                        <option value="price_asc">Precio: menor a mayor</option>
+                        <option value="price_desc">Precio: mayor a menor</option>
+                        <option value="newest">Más recientes</option>
+                        <option value="featured">Destacados</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Products Grid -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                {% for product in products %}
+                    <div class="bg-white rounded-lg shadow-md hover:shadow-lg transition duration-300 overflow-hidden group">
+                        <a href="{% url 'catalog:product_detail' slug=product.slug %}" class="block">
+                            <!-- Product Image -->
+                            <div class="aspect-w-1 aspect-h-1 relative">
+                                {% with product.images.first as primary_image %}
+                                    {% if primary_image %}
+                                        <img src="{{ primary_image.image.url }}" 
+                                             alt="{{ product.name }}"
+                                             class="w-full h-48 object-cover group-hover:scale-105 transition duration-300">
+                                    {% else %}
+                                        <div class="w-full h-48 bg-gray-200 flex items-center justify-center group-hover:bg-gray-300 transition duration-300">
+                                            <svg class="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                            </svg>
+                                        </div>
+                                    {% endif %}
+                                {% endwith %}
+                                
+                                <!-- Stock Badge -->
+                                {% if not product.is_in_stock %}
+                                    <div class="absolute top-2 left-2">
+                                        <span class="bg-red-500 text-white text-xs font-bold px-2 py-1 rounded">
+                                            Sin Stock
+                                        </span>
+                                    </div>
+                                {% endif %}
+                                
+                                <!-- Featured Badge -->
+                                {% if product.is_featured %}
+                                    <div class="absolute top-2 right-2">
+                                        <span class="bg-yellow-500 text-white text-xs font-bold px-2 py-1 rounded">
+                                            Destacado
+                                        </span>
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Product Info -->
+                            <div class="p-4">
+                                <h3 class="text-lg font-medium text-gray-900 group-hover:text-blue-600 transition duration-300 mb-2">
+                                    {{ product.name }}
+                                </h3>
+                                
+                                {% if product.short_description %}
+                                    <p class="text-sm text-gray-600 mb-3 line-clamp-2">
+                                        {{ product.short_description }}
+                                    </p>
+                                {% endif %}
+                                
+                                <!-- Price -->
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <span class="text-xl font-bold text-blue-600">
+                                            {{ product.formatted_price }}
+                                        </span>
+                                        {% if product.cost_price and product.cost_price != product.base_price %}
+                                            <span class="text-sm text-gray-500 line-through ml-2">
+                                                {{ product.cost_price }} €
+                                            </span>
+                                        {% endif %}
+                                    </div>
+                                    
+                                    <!-- Stock Status -->
+                                    <div class="text-sm">
+                                        {% if product.is_in_stock %}
+                                            <span class="text-green-600 font-medium">En stock</span>
+                                        {% else %}
+                                            <span class="text-red-600 font-medium">Sin stock</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                
+                                <!-- Product SKU -->
+                                <p class="text-xs text-gray-400 mt-2">SKU: {{ product.sku }}</p>
+                            </div>
+                        </a>
+                        
+                        <!-- Add to Cart Button -->
+                        <div class="px-4 pb-4">
+                            {% if product.is_in_stock %}
+                                <button onclick="addToCart({{ product.id }})" 
+                                        class="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition duration-300 font-medium">
+                                    Añadir al Carrito
+                                </button>
+                            {% else %}
+                                <button disabled 
+                                        class="w-full bg-gray-300 text-gray-500 py-2 px-4 rounded-lg cursor-not-allowed font-medium">
+                                    Sin Stock
+                                </button>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Pagination -->
+        {% if is_paginated %}
+            <div class="flex justify-center mt-12">
+                <nav class="flex items-center space-x-2">
+                    {% if page_obj.has_previous %}
+                        <a href="?page=1" class="px-3 py-2 text-sm font-medium text-gray-500 hover:text-blue-600 transition duration-300">
+                            Primera
+                        </a>
+                        <a href="?page={{ page_obj.previous_page_number }}" class="px-3 py-2 text-sm font-medium text-gray-500 hover:text-blue-600 transition duration-300">
+                            Anterior
+                        </a>
+                    {% endif %}
+                    
+                    {% for num in page_obj.paginator.page_range %}
+                        {% if page_obj.number == num %}
+                            <span class="px-3 py-2 text-sm font-medium text-white bg-blue-600 rounded">{{ num }}</span>
+                        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                            <a href="?page={{ num }}" class="px-3 py-2 text-sm font-medium text-gray-500 hover:text-blue-600 transition duration-300">{{ num }}</a>
+                        {% endif %}
+                    {% endfor %}
+                    
+                    {% if page_obj.has_next %}
+                        <a href="?page={{ page_obj.next_page_number }}" class="px-3 py-2 text-sm font-medium text-gray-500 hover:text-blue-600 transition duration-300">
+                            Siguiente
+                        </a>
+                        <a href="?page={{ page_obj.paginator.num_pages }}" class="px-3 py-2 text-sm font-medium text-gray-500 hover:text-blue-600 transition duration-300">
+                            Última
+                        </a>
+                    {% endif %}
+                </nav>
+            </div>
+        {% endif %}
+    {% else %}
+        <!-- No Products -->
+        <div class="text-center py-12">
+            <svg class="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path>
+            </svg>
+            <h3 class="text-lg font-medium text-gray-900 mb-2">No hay productos en esta categoría</h3>
+            <p class="text-gray-500 mb-4">Aún no se han agregado productos a esta categoría.</p>
+            <a href="{% url 'catalog:product_list' %}" 
+               class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition duration-300 inline-block">
+                Ver Todos los Productos
+            </a>
+        </div>
+    {% endif %}
+</div>
+
+<script>
+function addToCart(productId) {
+    fetch(`/cart/add/${productId}/`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+        },
+        body: 'quantity=1'
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Update cart badge
+            const badge = document.querySelector('.cart-badge');
+            if (badge) {
+                badge.textContent = data.cart_total_items;
+            } else {
+                // Create badge if it doesn't exist
+                const cartLink = document.querySelector('a[href*="/cart/"]');
+                if (cartLink) {
+                    const badge = document.createElement('span');
+                    badge.className = 'cart-badge bg-red-500 text-white text-xs rounded-full px-2 py-1 ml-1';
+                    badge.textContent = data.cart_total_items;
+                    cartLink.appendChild(badge);
+                }
+            }
+            
+            showMessage('Producto añadido al carrito', 'success');
+        } else {
+            showMessage('Error al añadir el producto', 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showMessage('Error al añadir el producto', 'error');
+    });
+}
+
+function showMessage(message, type) {
+    // Simple toast notification
+    const toast = document.createElement('div');
+    toast.className = `fixed top-4 right-4 px-4 py-2 rounded-lg text-white z-50 ${type === 'success' ? 'bg-green-500' : 'bg-red-500'}`;
+    toast.textContent = message;
+    document.body.appendChild(toast);
+    
+    setTimeout(() => {
+        toast.remove();
+    }, 3000);
+}
+
+// Sort functionality
+document.getElementById('sort-select').addEventListener('change', function() {
+    const sortValue = this.value;
+    const url = new URL(window.location);
+    url.searchParams.set('sort', sortValue);
+    window.location.href = url.toString();
+});
+</script>
+{% endblock %}
